@@ -313,7 +313,7 @@ export const Header: React.FC<HeaderProps> = ({
                   currentView === 'home' ? 'bg-[#142B46] text-white' : 'text-slate-800 hover:bg-slate-50'
                 }`}
               >
-                1. Home
+                Home
               </button>
 
               <button
@@ -322,7 +322,7 @@ export const Header: React.FC<HeaderProps> = ({
                   currentView === 'about' ? 'bg-[#142B46] text-white' : 'text-slate-800 hover:bg-slate-50'
                 }`}
               >
-                2. About Us
+                About Us
               </button>
 
               <button
@@ -331,7 +331,7 @@ export const Header: React.FC<HeaderProps> = ({
                   currentView === 'services' ? 'bg-[#142B46] text-white' : 'text-slate-800 hover:bg-slate-50'
                 }`}
               >
-                3. Services Overview
+                Services Overview
               </button>
 
               <div className="pl-4 py-1 flex flex-col gap-1 border-l-2 border-[#D4B477]/40 ml-2">
@@ -339,31 +339,31 @@ export const Header: React.FC<HeaderProps> = ({
                   onClick={() => handleNavClick('service-gst')}
                   className="text-left px-3 py-2 text-xs text-slate-700 hover:text-[#142B46]"
                 >
-                  4. GST Services
+                  GST Services &amp; Filing
                 </button>
                 <button
                   onClick={() => handleNavClick('service-incometax')}
                   className="text-left px-3 py-2 text-xs text-slate-700 hover:text-[#142B46]"
                 >
-                  5. Income Tax Services
+                  Income Tax Services (ITR)
                 </button>
                 <button
                   onClick={() => handleNavClick('service-accounting')}
                   className="text-left px-3 py-2 text-xs text-slate-700 hover:text-[#142B46]"
                 >
-                  6. Accounting &amp; Bookkeeping
+                  Accounting &amp; Bookkeeping
                 </button>
                 <button
                   onClick={() => handleNavClick('service-tds')}
                   className="text-left px-3 py-2 text-xs text-slate-700 hover:text-[#142B46]"
                 >
-                  7. TDS &amp; Payroll
+                  TDS &amp; Payroll Compliance
                 </button>
                 <button
                   onClick={() => handleNavClick('service-compliance')}
                   className="text-left px-3 py-2 text-xs text-slate-700 hover:text-[#142B46]"
                 >
-                  8. Business Compliance
+                  Business Registration &amp; Compliance
                 </button>
               </div>
 
@@ -374,7 +374,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 <Calculator className="w-4 h-4 text-[#D4B477]" />
-                <span>9. GST Calculator</span>
+                <span>GST Calculator</span>
               </button>
 
               <button
@@ -384,7 +384,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 <FileText className="w-4 h-4 text-[#D4B477]" />
-                <span>10. Income Tax Estimator</span>
+                <span>Income Tax Estimator</span>
               </button>
 
               <button
@@ -394,7 +394,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
               >
                 <Calendar className="w-4 h-4 text-[#D4B477]" />
-                <span>11. Compliance Calendar</span>
+                <span>Compliance Calendar</span>
               </button>
 
               <button
@@ -403,7 +403,7 @@ export const Header: React.FC<HeaderProps> = ({
                   currentView === 'contact' ? 'bg-[#142B46] text-white' : 'text-slate-800 hover:bg-slate-50'
                 }`}
               >
-                12. Contact Us
+                Contact Us
               </button>
 
               {/* Direct Quick Actions on Mobile */}

@@ -103,7 +103,7 @@ export const IncomeTaxEstimatorView: React.FC<IncomeTaxEstimatorViewProps> = ({
                   Applicable: {comparison.financialYear} ({comparison.assessmentYear})
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  Verified against official Indian Finance Act provisions (Standard deduction: ₹75,000 for New Regime)
+                  Verified against official Finance Act &amp; Income-tax Act provisions (Sec. 87A rebate up to ₹12 Lakhs; zero-tax salary up to ₹12.75 Lakhs)
                 </div>
               </div>
             </div>
@@ -401,13 +401,17 @@ export const IncomeTaxEstimatorView: React.FC<IncomeTaxEstimatorViewProps> = ({
                     </div>
                     {comparison.newRegime.rebate87A > 0 && (
                       <div className="flex justify-between text-emerald-700">
-                        <span className="font-sans">Rebate u/s 87A:</span>
+                        <span className="font-sans">
+                          {selectedFY === '2026-27' ? 'Rebate u/s 156 (formerly 87A):' : 'Rebate u/s 87A:'}
+                        </span>
                         <span>-₹{comparison.newRegime.rebate87A.toLocaleString('en-IN')}</span>
                       </div>
                     )}
                     {comparison.newRegime.marginalRelief > 0 && (
                       <div className="flex justify-between text-emerald-700">
-                        <span className="font-sans">Marginal Relief:</span>
+                        <span className="font-sans">
+                          Marginal Relief ({selectedFY === '2026-27' ? 'u/s 156' : 'u/s 87A'}):
+                        </span>
                         <span>-₹{comparison.newRegime.marginalRelief.toLocaleString('en-IN')}</span>
                       </div>
                     )}
@@ -468,7 +472,9 @@ export const IncomeTaxEstimatorView: React.FC<IncomeTaxEstimatorViewProps> = ({
                     </div>
                     {comparison.oldRegime.rebate87A > 0 && (
                       <div className="flex justify-between text-emerald-700">
-                        <span className="font-sans">Rebate u/s 87A:</span>
+                        <span className="font-sans">
+                          {selectedFY === '2026-27' ? 'Rebate u/s 156 (formerly 87A):' : 'Rebate u/s 87A:'}
+                        </span>
                         <span>-₹{comparison.oldRegime.rebate87A.toLocaleString('en-IN')}</span>
                       </div>
                     )}

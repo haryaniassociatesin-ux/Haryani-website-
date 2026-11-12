@@ -6,6 +6,7 @@
 import {
   TAX_CONFIG_BY_FY,
   DEFAULT_FY,
+  TAX_DISCLAIMER,
   type AgeCategory,
   type TaxSlab,
 } from '../data/taxRules';
@@ -119,25 +120,55 @@ export function computeRegimeTax(
     // 100% rebate under section 87A up to max rebate
     rebate87A = Math.min(basicTax, maxRebate);
     taxAfterRebate = Math.max(0, basicTax - rebate87A);
-  } else if (isNewRegime && taxableIncome > 700000) {
-    // Marginal relief under New Regime: tax cannot exceed excess income over 7,00,000
-    const excessIncome = taxableIncome - 700000;
+  } else if (isNewRegime && taxableIncome > rebateLimit) {
+    // Marginal relief under New Regime: tax cannot exceed excess income over the rebate threshold (e.g. ₹12,00,000 for FY 2026-27 or ₹7,00,000 for FY 2024-25)
+    const excessIncome = taxableIncome - rebateLimit;
     if (basicTax > excessIncome) {
       marginalRelief = basicTax - excessIncome;
       taxAfterRebate = excessIncome;
     }
   }
 
-  // Surcharge (Standard Indian personal tax rates for high income)
-  let surchargeRate = 0;
-  if (taxableIncome > 20000000) {
-    surchargeRate = isNewRegime ? 0.25 : 0.25; // Budget capped new regime surcharge at 25%
-  } else if (taxableIncome > 10000000) {
-    surchargeRate = 0.15;
-  } else if (taxableIncome > 5000000) {
-    surchargeRate = 0.10;
+  // Surcharge (Standard Indian personal tax rates for high net-worth income)
+  let surcharge = 0;
+  if (taxableIncome > 5000000) {
+    let surchargeRate = 0;
+    let threshold = 5000000;
+
+    if (!isNewRegime && taxableIncome > 50000000) {
+      surchargeRate = 0.37; // 37% surcharge for Old Regime above ₹5 Crore
+      threshold = 50000000;
+    } else if (taxableIncome > 20000000) {
+      surchargeRate = 0.25; // Capped at 25% under New Regime
+      threshold = 20000000;
+    } else if (taxableIncome > 10000000) {
+      surchargeRate = 0.15;
+      threshold = 10000000;
+    } else {
+      surchargeRate = 0.10;
+      threshold = 5000000;
+    }
+
+    const rawSurcharge = Math.round(taxAfterRebate * surchargeRate);
+
+    // Surcharge Marginal Relief:
+    // Total (Tax + Surcharge) cannot exceed (Tax at threshold + Surcharge at threshold) + (Taxable Income - Threshold)
+    const { basicTax: taxAtThreshold } = calculateSlabTax(threshold, slabs);
+    let thresholdSurchargeRate = 0;
+    if (threshold === 10000000) thresholdSurchargeRate = 0.10;
+    else if (threshold === 20000000) thresholdSurchargeRate = 0.15;
+    else if (threshold === 50000000) thresholdSurchargeRate = 0.25;
+
+    const maxAllowedTaxPlusSurcharge = (taxAtThreshold * (1 + thresholdSurchargeRate)) + (taxableIncome - threshold);
+    const actualTaxPlusSurcharge = taxAfterRebate + rawSurcharge;
+
+    if (actualTaxPlusSurcharge > maxAllowedTaxPlusSurcharge) {
+      const relief = actualTaxPlusSurcharge - maxAllowedTaxPlusSurcharge;
+      surcharge = Math.max(0, rawSurcharge - relief);
+    } else {
+      surcharge = rawSurcharge;
+    }
   }
-  const surcharge = Math.round(taxAfterRebate * surchargeRate);
 
   // Health and Education Cess: 4% of (tax + surcharge)
   const cess = Math.round((taxAfterRebate + surcharge) * 0.04);
@@ -228,7 +259,6 @@ export function estimateIncomeTax(input: TaxInput): TaxComparisonResult {
     oldRegime: oldRegimeResult,
     recommendedRegime,
     taxSavings,
-    disclaimer:
-      'This calculator provides an indicative tax estimate based on the information entered. Actual tax liability may differ depending on applicable provisions, deductions, exemptions and individual circumstances. Please consult a tax professional for a final computation.',
+    disclaimer: TAX_DISCLAIMER,
   };
 }

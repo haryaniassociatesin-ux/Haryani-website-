@@ -75,8 +75,13 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({
                   <User className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-[#142B46]">
-                    {BUSINESS_INFO.contactPerson1.label}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-[#142B46]">
+                      {BUSINESS_INFO.contactPerson1.label}
+                    </span>
+                    <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded">
+                      Primary
+                    </span>
                   </div>
                   <div className="text-[11px] text-slate-500 font-mono">
                     {BUSINESS_INFO.contactPerson1.displayPhone}

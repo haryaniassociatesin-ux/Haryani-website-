@@ -92,16 +92,43 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
     }
 
     setIsSubmitting(true);
+    const cleanPhone = phoneNumber.replace(/[\s\-\+]/g, '');
 
     try {
-      // Simulate/prepare server delivery to both designated emails
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      const response = await fetch('/api/enquiry', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName: fullName.trim(),
+          phoneNumber: cleanPhone,
+          email: email.trim() || undefined,
+          serviceRequired: selectedService,
+          message: message.trim(),
+          honeypot: honeypot.trim() || undefined,
+        }),
+      });
 
-      setSubmitted(true);
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSubmitted(true);
+      } else if (!data.configured) {
+        // Server credentials unconfigured
+        setSubmitError(
+          data.message ||
+            'Notice: Server email service credentials (SMTP/Resend) are not configured in .env yet. Please use the direct WhatsApp or Email buttons below to contact us immediately.'
+        );
+      } else {
+        setSubmitError(data.error || data.message || 'Failed to submit enquiry. Please try again.');
+      }
+    } catch (err: any) {
+      setSubmitError(
+        'Network error: Could not reach the enquiry server. Please contact our consultants directly via phone or WhatsApp.'
+      );
+    } finally {
       setIsSubmitting(false);
-    } catch (err) {
-      setIsSubmitting(false);
-      setSubmitError('Failed to transmit enquiry. Please contact us directly via phone or WhatsApp.');
     }
   };
 
@@ -111,6 +138,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
     setEmail('');
     setMessage('');
     setSubmitted(false);
+    setSubmitError(null);
     setErrors({});
   };
 
@@ -208,9 +236,43 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
       </div>
 
       {submitError && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-          <span>{submitError}</span>
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 space-y-3">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div className="leading-relaxed font-medium">{submitError}</div>
+          </div>
+          <div className="pt-2 border-t border-amber-200/80">
+            <span className="font-semibold block text-[11px] mb-2 text-slate-800">
+              Immediate Direct Transmission (No message lost):
+            </span>
+            <div className="flex flex-wrap gap-2">
+              <a
+                href={whatsappLink1}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-[11px] font-semibold"
+              >
+                <MessageCircle className="w-3 h-3" />
+                <span>WhatsApp Contact 1</span>
+              </a>
+              <a
+                href={whatsappLink2}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-[11px] font-semibold"
+              >
+                <MessageCircle className="w-3 h-3" />
+                <span>WhatsApp Contact 2</span>
+              </a>
+              <a
+                href={dualMailtoLink}
+                className="inline-flex items-center gap-1.5 py-1.5 px-3 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-md text-[11px] font-semibold"
+              >
+                <Mail className="w-3 h-3 text-slate-500" />
+                <span>Open in Email App</span>
+              </a>
+            </div>
+          </div>
         </div>
       )}
 

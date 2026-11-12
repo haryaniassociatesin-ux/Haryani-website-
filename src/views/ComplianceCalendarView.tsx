@@ -3,7 +3,9 @@ import {
   COMPLIANCE_DEADLINES,
   COMPLIANCE_CATEGORIES,
   ComplianceCategory,
-  ComplianceDeadline
+  ComplianceDeadline,
+  CALENDAR_VERIFICATION_DATE,
+  CALENDAR_RELEVANT_PERIOD
 } from '../data/complianceCalendar';
 import { NavigationTarget } from '../components/Header';
 import {
@@ -16,7 +18,8 @@ import {
   Building,
   CheckCircle,
   ArrowRight,
-  Info
+  Info,
+  ShieldCheck
 } from 'lucide-react';
 
 interface ComplianceCalendarViewProps {
@@ -31,7 +34,7 @@ export const ComplianceCalendarView: React.FC<ComplianceCalendarViewProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<ComplianceCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<'all' | 'monthly'>('all');
-  const [selectedMonth, setSelectedMonth] = useState<number>(5); // Default to May or current
+  const [selectedMonth, setSelectedMonth] = useState<number>(11); // November current month
 
   // Filter deadlines
   const filteredDeadlines = useMemo(() => {
@@ -88,14 +91,16 @@ export const ComplianceCalendarView: React.FC<ComplianceCalendarViewProps> = ({
       <section className="bg-[#142B46] text-white py-14 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#D4B477] block mb-2">
-              Statutory Deadlines Guide
-            </span>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#D4B477] mb-2">
+              <span>Statutory Compliance Guide</span>
+              <span aria-hidden="true">·</span>
+              <span>Last Verified: {CALENDAR_VERIFICATION_DATE}</span>
+            </div>
             <h1 className="text-3xl sm:text-4xl font-bold font-serif text-white mb-2">
               Public Indian Tax Compliance Calendar
             </h1>
             <p className="text-sm text-slate-300 font-sans leading-relaxed">
-              Verified statutory due dates for GST Returns, TDS Deductions, Advance Tax, and Annual Income Tax Returns across FY 2024-25 and FY 2025-26.
+              Statutory filing deadlines for GST Returns, TDS Withholdings, Advance Tax Instalments, and Annual Income Tax Returns ({CALENDAR_RELEVANT_PERIOD}).
             </p>
           </div>
         </div>
@@ -104,11 +109,16 @@ export const ComplianceCalendarView: React.FC<ComplianceCalendarViewProps> = ({
       {/* Main Calendar Content */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Statutory Notice Banner */}
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs mb-8 flex items-start gap-3">
-            <Info className="w-5 h-5 text-[#D4B477] shrink-0 mt-0.5" />
-            <div className="text-xs text-slate-600 leading-relaxed">
-              <strong className="text-slate-800">Public Regulatory Notice:</strong> Compliance deadlines depend on your taxpayer category (e.g. Regular vs QRMP in GST, or Corporate vs Non-Audit Individual in Income Tax). Due dates are subject to official CBDT / CBIC extensions. Consult our team for specific applicability to your business.
+          {/* Statutory Verification Notice Banner */}
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="text-xs text-slate-600 leading-relaxed">
+                <strong className="text-slate-800">Statutory Notice:</strong> Deadlines are cross-verified against official portals (GST Portal, Income Tax Dept CBDT, and MCA). Recurring statutory dates apply; check individual categories for applicable turnover limits.
+              </div>
+            </div>
+            <div className="px-3 py-1 bg-slate-100 border border-slate-200 rounded-md text-[11px] font-semibold text-slate-700 whitespace-nowrap shrink-0">
+              Verified: {CALENDAR_VERIFICATION_DATE}
             </div>
           </div>
 
@@ -220,7 +230,7 @@ export const ComplianceCalendarView: React.FC<ComplianceCalendarViewProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs text-slate-500 px-1">
                 <span>Showing {filteredDeadlines.length} scheduled statutory deadlines</span>
-                <span>Financial Year 2024-25 &amp; 2025-26</span>
+                <span>{CALENDAR_RELEVANT_PERIOD}</span>
               </div>
 
               {filteredDeadlines.map((item) => (
@@ -255,6 +265,11 @@ export const ComplianceCalendarView: React.FC<ComplianceCalendarViewProps> = ({
                         <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
                           {item.categoryLabel}
                         </span>
+                        {item.officialSource && (
+                          <span className="text-[10px] font-medium text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                            Source: {item.officialSource}
+                          </span>
+                        )}
                       </div>
 
                       <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">

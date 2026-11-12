@@ -56,7 +56,7 @@ export const GstCalculatorView: React.FC<GstCalculatorViewProps> = ({
     setTransType('intra_state');
   };
 
-  const handleCopySummary = () => {
+  const handleCopySummary = async () => {
     const text = `Indian GST Calculation Summary (Haryani & Associates):
 Amount Entered: ₹${result.originalAmount.toLocaleString('en-IN')}
 Calculation Mode: ${result.calculationType === 'exclusive' ? 'GST Exclusive' : 'GST Inclusive'}
@@ -71,9 +71,38 @@ ${
 Total GST: ₹${result.totalGst.toLocaleString('en-IN')}
 Final Invoice Total: ₹${result.finalInvoiceAmount.toLocaleString('en-IN')}`;
 
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Safe fallback for restricted iframe sandbox
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        // Fallback gracefully without console error
+      }
+    }
   };
 
   return (
