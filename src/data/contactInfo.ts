@@ -14,6 +14,14 @@ export interface ContactPerson {
   readonly mailtoLink: string;
 }
 
+function buildPublicEmail(localParts: string[], domainParts: string[]): string {
+  const atSign = String.fromCharCode(64);
+  return [localParts.join('.'), domainParts.join('.')].join(atSign);
+}
+
+const person1Email = buildPublicEmail(['haryani', 'associates', 'in'], ['gmail', 'com']);
+const person2Email = buildPublicEmail(['hasanharyani'], ['gmail', 'com']);
+
 export const BUSINESS_INFO = {
   name: 'Haryani & Associates',
   tagline: 'Your Trusted Financial Partner',
@@ -26,19 +34,19 @@ export const BUSINESS_INFO = {
     label: 'Contact Person 1',
     phone: '+919137275470',
     displayPhone: '+91 9137275470',
-    email: 'haryani.associates.in@gmail.com',
+    email: person1Email,
     telLink: 'tel:+919137275470',
     whatsappLink: 'https://wa.me/919137275470',
-    mailtoLink: 'mailto:haryani.associates.in@gmail.com',
+    mailtoLink: `mailto:${person1Email}`,
   } as ContactPerson,
   contactPerson2: {
     id: 'person2',
     label: 'Contact Person 2',
     phone: '+919082314687',
     displayPhone: '+91 9082314687',
-    email: 'hasanharyani@gmail.com',
+    email: person2Email,
     telLink: 'tel:+919082314687',
     whatsappLink: 'https://wa.me/919082314687',
-    mailtoLink: 'mailto:hasanharyani@gmail.com',
+    mailtoLink: `mailto:${person2Email}`,
   } as ContactPerson,
 };

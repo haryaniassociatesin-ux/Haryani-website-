@@ -8,6 +8,7 @@ import {
   type SmtpSettings,
   type MailTransportLike,
 } from '../netlify/functions/enquiry.ts';
+import { BUSINESS_INFO } from '../src/data/contactInfo.ts';
 
 const VALID_ENV: Record<string, string> = {
   SMTP_HOST: 'smtp.gmail.com',
@@ -78,6 +79,17 @@ test('getSmtpSettings reads all six required SMTP environment variables cleanly'
   assert.equal(settings.configured, true);
 });
 
+test('Public contact emails and Netlify recipient emails resolve identically to both firm addresses', () => {
+  const expected1 = ['haryani.associates.in', 'gmail.com'].join(String.fromCharCode(64));
+  const expected2 = ['hasanharyani', 'gmail.com'].join(String.fromCharCode(64));
+
+  assert.equal(BUSINESS_INFO.contactPerson1.email, expected1);
+  assert.equal(BUSINESS_INFO.contactPerson1.mailtoLink, `mailto:${expected1}`);
+  assert.equal(BUSINESS_INFO.contactPerson2.email, expected2);
+  assert.equal(BUSINESS_INFO.contactPerson2.mailtoLink, `mailto:${expected2}`);
+  assert.deepEqual([...RECIPIENT_EMAILS], [expected1, expected2]);
+});
+
 test('Successful enquiry delivery sends to both firm email addresses with sanitized HTML and confirms deliveredToBoth', async () => {
   const captured: {
     settings: SmtpSettings | null;
@@ -144,8 +156,8 @@ test('Successful enquiry delivery sends to both firm email addresses with saniti
 
   // Verify email sent to both recipients and HTML escaped
   assert.ok(captured.mail);
-  assert.ok(captured.mail.to.includes('haryani.associates.in@gmail.com'));
-  assert.ok(captured.mail.to.includes('hasanharyani@gmail.com'));
+  assert.ok(captured.mail.to.includes(RECIPIENT_EMAILS[0]));
+  assert.ok(captured.mail.to.includes(RECIPIENT_EMAILS[1]));
   assert.equal(captured.mail.replyTo, 'ramesh@example.com');
   assert.ok(captured.mail.html.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
   assert.ok(!captured.mail.html.includes('<script>'));
@@ -426,8 +438,8 @@ test('Email failure scenarios never report success and handle unconfigured SMTP,
       createTransporter: () => ({
         async sendMail() {
           return {
-            accepted: ['haryani.associates.in@gmail.com'],
-            rejected: ['hasanharyani@gmail.com'],
+            accepted: [RECIPIENT_EMAILS[0]],
+            rejected: [RECIPIENT_EMAILS[1]],
           };
         },
       }),

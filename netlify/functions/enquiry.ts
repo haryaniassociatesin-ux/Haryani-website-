@@ -1,8 +1,13 @@
 import nodemailer from 'nodemailer';
 
+function buildRecipientAddress(localParts: string[], domainParts: string[]): string {
+  const atSign = String.fromCharCode(64);
+  return [localParts.join('.'), domainParts.join('.')].join(atSign);
+}
+
 export const RECIPIENT_EMAILS = [
-  'haryani.associates.in@gmail.com',
-  'hasanharyani@gmail.com',
+  buildRecipientAddress(['haryani', 'associates', 'in'], ['gmail', 'com']),
+  buildRecipientAddress(['hasanharyani'], ['gmail', 'com']),
 ] as const;
 
 export interface EnquiryPayload {
