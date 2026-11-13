@@ -95,7 +95,7 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
     const cleanPhone = phoneNumber.replace(/[\s\-\+]/g, '');
 
     try {
-      const response = await fetch('/api/enquiry', {
+      const response = await fetch('/.netlify/functions/enquiry', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,22 +110,41 @@ export const EnquiryForm: React.FC<EnquiryFormProps> = ({
         }),
       });
 
-      const data = await response.json();
+      let data: {
+        success?: boolean;
+        configured?: boolean;
+        deliveredToBoth?: boolean;
+        error?: string;
+        message?: string;
+      } = {};
 
-      if (response.ok && data.success) {
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+
+      if (
+        response.ok &&
+        data.success === true &&
+        data.deliveredToBoth === true
+      ) {
         setSubmitted(true);
-      } else if (!data.configured) {
-        // Server credentials unconfigured
+      } else if (data.configured === false) {
         setSubmitError(
           data.message ||
-            'Notice: Server email service credentials (SMTP/Resend) are not configured in .env yet. Please use the direct WhatsApp or Email buttons below to contact us immediately.'
+            'Email delivery service is currently unavailable. Your entered details have been retained—please send your enquiry directly via WhatsApp or Email below.'
         );
       } else {
-        setSubmitError(data.error || data.message || 'Failed to submit enquiry. Please try again.');
+        setSubmitError(
+          data.error ||
+            data.message ||
+            'Failed to deliver your enquiry via email. Please try again or use WhatsApp/Email below.'
+        );
       }
-    } catch (err: any) {
+    } catch {
       setSubmitError(
-        'Network error: Could not reach the enquiry server. Please contact our consultants directly via phone or WhatsApp.'
+        'Network error: Could not reach the enquiry service. Your entered details are still here—please try again or contact us via WhatsApp or Phone.'
       );
     } finally {
       setIsSubmitting(false);
